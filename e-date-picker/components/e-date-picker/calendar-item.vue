@@ -17,10 +17,7 @@
       }"
     >
       <!-- 日期名 -->
-      <text
-        class="uni-calendar-item__weeks-box-text uni-calendar-item__weeks-box-text-disable uni-calendar-item--checked-text"
-        >{{ item.date }}</text
-      >
+      <text class="uni-calendar-item__weeks-box-text uni-calendar-item__weeks-box-text-disable uni-calendar-item--checked-text">{{ item.date }}</text>
     </view>
     <!-- 今日则显示一个小圆点 -->
     <view :class="{ 'uni-calendar-item--isDay': item.isDay }"></view>
@@ -54,7 +51,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .uni-calendar-item__weeks-box {
   flex: 1;
   display: flex;

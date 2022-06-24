@@ -25,11 +25,7 @@
       <view class="uni-calendar__box">
         <!--文本：日 一 二 三 四 五 六 -->
         <view class="uni-calendar__weeks" style="padding-bottom: 7px" v-show="showType == 1">
-          <view
-            class="uni-calendar__weeks-day"
-            v-for="item in ['日', '一', '二', '三', '四', '五', '六']"
-            :key="item"
-          >
+          <view class="uni-calendar__weeks-day" v-for="item in ['日', '一', '二', '三', '四', '五', '六']" :key="item">
             <text class="uni-calendar__weeks-day-text">{{ item }}</text>
           </view>
         </view>
@@ -37,18 +33,9 @@
         <view v-show="showType == 1" class="list">
           <view class="uni-calendar__weeks" v-for="(item, index) in weeks" :key="index">
             <!-- 每行日期 -->
-            <view
-              class="uni-calendar__weeks-item"
-              v-for="(itemData, itemIndex) in item"
-              :key="itemIndex"
-            >
+            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item
-                class="uni-calendar-item--hook"
-                :item="itemData"
-                :nowDate="nowDate"
-                @change="choiceDate"
-              ></calendar-item>
+              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
@@ -56,18 +43,9 @@
         <view v-show="showType == 2" class="list">
           <view class="uni-calendar__weeks" v-for="(item, index) in months" :key="index">
             <!-- 每行日期 -->
-            <view
-              class="uni-calendar__weeks-item"
-              v-for="(itemData, itemIndex) in item"
-              :key="itemIndex"
-            >
+            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item
-                class="uni-calendar-item--hook"
-                :item="itemData"
-                :nowDate="nowDate"
-                @change="choiceDate"
-              ></calendar-item>
+              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
@@ -75,18 +53,9 @@
         <view v-show="showType == 3" class="list">
           <view class="uni-calendar__weeks" v-for="(item, index) in years" :key="index">
             <!-- 每行日期 -->
-            <view
-              class="uni-calendar__weeks-item"
-              v-for="(itemData, itemIndex) in item"
-              :key="itemIndex"
-            >
+            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item
-                class="uni-calendar-item--hook"
-                :item="itemData"
-                :nowDate="nowDate"
-                @change="choiceDate"
-              ></calendar-item>
+              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
@@ -220,7 +189,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .uni-calendar {
   /* #ifndef APP-NVUE */
   display: flex;

@@ -3,22 +3,13 @@
     <!-- 输入框区域 -->
     <view class="uni-date-editor" @click="show">
       <slot>
-        <view
-          class="uni-date-editor--x uni-date-x--border"
-          :class="{ 'uni-date-editor--x__disabled': disabled }"
-        >
+        <view class="uni-date-editor--x uni-date-x--border" :class="{ 'uni-date-editor--x__disabled': disabled }">
           <!-- 一个输入框组件 -->
           <view class="uni-date-x uni-date-single">
             <!-- 日期图标 -->
             <uni-icons type="calendar" color="#e1e1e1" size="22" />
             <!-- 输入框不能输入，只用于触发日期弹窗显示 -->
-            <input
-              class="uni-date__x-input"
-              type="text"
-              v-model="date"
-              :placeholder="placeholder"
-              :disabled="true"
-            />
+            <input class="uni-date__x-input" type="text" v-model="date" :placeholder="placeholder" :disabled="true" />
           </view>
           <!-- 输入框是否显示清除按钮 -->
           <view v-if="showClearIcon" class="uni-date__icon-clear" @click.stop="clear">
@@ -191,7 +182,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .uni-date-x {
   display: flex;
   flex-direction: row;
