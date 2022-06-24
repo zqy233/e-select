@@ -14,7 +14,7 @@
 
 ### e-timedate-picker
 
-![image-20220624215748724](https://github.com/zqy233/uniapp-components/blob/master/e-date-picker/%E6%95%88%E6%9E%9C%E5%9B%BE1.png)
+![image-20220624215748724](https://github.com/zqy233/uniapp-components/blob/master/e-datetime-picker/%E6%95%88%E6%9E%9C%E5%9B%BE.png)
 
 ### e-select
 
