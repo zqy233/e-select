@@ -3,7 +3,7 @@
 | 组件名                                                    | 说明               |
 | --------------------------------------------------------- | ------------------ |
 | [e-date-picker](https://ext.dcloud.net.cn/plugin?id=8362) | 年月日选择器       |
-| e-timedate-picker                                         | 年月日时分秒选择器 |
+| e-datetime-picker                                         | 年月日时分秒选择器 |
 | [e-select](https://ext.dcloud.net.cn/plugin?id=8347)      | 下拉选择框         |
 
 ## 效果图
