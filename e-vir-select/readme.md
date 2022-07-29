@@ -1,4 +1,4 @@
-# e-select
+# e-vir-select
 
 基于官方`uni-data-select`组件修改
 
@@ -6,22 +6,18 @@
 
 只保留必要部分代码，并添加详细注释，方便个人再次修改
 
-## 放弃虚拟滚动实现
+## 兼容
 
-虚拟滚动h5才能带的动，微信小程序和手机端滚动一快就白屏
+只支持h5，因为小程序或手机端性能远不如浏览器，存在滚动过快，dom来不及加载的白屏现象，最终思考过后，我觉得暂时是无法解决这样的白屏问题的
 
-虚拟滚动已拆分至https://ext.dcloud.net.cn/plugin?id=8945，如果只有h5需求的话可以用用看
-
-微信小程序和手机端的大数据量选项解决方案还得是分页
-
-本组件内置插槽，大数据量的话可以搭配第三方分页组件一起使用
+最终，本组件只用于支持h5
 
 ## 主要功能
 
 - v-model 绑定
-- 内置插槽，大数据量的话可以搭配第三方分页组件一起使用
+- 虚拟滚动，支持上万条数据，只支持h5 
 - 默认开启搜索模式，输入或删除进行过滤搜索
-- 高亮已选择的选项，下次打开自动滚动至
+- 高亮已选择的选项，下次打开自动滚动至，上万条数据也支持
 - 可定义选项列表数据格式
 - 可清除
 - 支持禁用整个组件，或者禁用单独选项
@@ -78,6 +74,11 @@
       type: Boolean,
       default: false
     },
+    // 每条数据的高度，注意注意，只支持px，修改每条数据的css高度后，才需要改变这个值
+    itemSize: {
+      type: Number,
+      default: 40
+    },
     // 启动搜索模式
     search: {
       type: Boolean,
@@ -95,30 +96,17 @@
 <template>
   <view>
     <!-- 不传width则宽度填满父元素  -->
-    <e-select
+    <e-vir-select v-model="value1" :options="options1" disabled></e-vir-select>
+    <e-vir-select
       v-model="value1"
       :options="options1"
       @change="change1"
       placeholder="选择选项"
       :search="false"
-    ></e-select>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-      placeholder="选择选项"
-      :search="false"
-    >
-      <!-- 内置插槽，可以搭配官方uni-ui的分页组件使用 -->
-      <uni-pagination
-        show-icon="true"
-        :total="1000"
-        :pageSize="100"
-        :current="2"
-        @change="page1"
-      ></uni-pagination>
-    </e-select>
-    <e-select
+    ></e-vir-select>
+
+    <e-vir-select v-model="value2" :options="options2" disabled width="400rpx"></e-vir-select>
+    <e-vir-select
       v-model="value2"
       :options="options2"
       @change="change2"
@@ -126,9 +114,7 @@
       placeholder="选择选项"
       width="400rpx"
       clear
-    >
-      <uni-pagination :total="1000" :pageSize="100" :current="2" @change="page2"></uni-pagination>
-    </e-select>
+    ></e-vir-select>
   </view>
 </template>
 
@@ -137,7 +123,7 @@ export default {
   data() {
     return {
       value1: "Shenzhen50",
-      value2: "Shenzhen60",
+      value2: "Shenzhen6000",
       // 默认选项数据结构，使用默认可以不传
       // props1: {
       //   text: "text",
@@ -160,25 +146,19 @@ export default {
     },
     change2(item) {
       console.log(item)
-    },
-    page1(item) {
-      console.log(item)
-    },
-    page2(item) {
-      console.log(item)
     }
   },
   mounted() {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10000; i++) {
       this.options1.push({
         text: "Shenzhen" + i,
         value: "Shenzhen" + i
       })
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10000; i++) {
       // 禁用指定选项
-      if (i === 59 || i === 61) {
+      if (i === 5999 || i === 6001) {
         this.options2.push({
           label: "Shenzhen" + i,
           data: "Shenzhen" + i,

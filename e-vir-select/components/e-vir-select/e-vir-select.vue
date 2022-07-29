@@ -2,10 +2,12 @@
   <view class="e-stat__select" :style="{ width: width, minWidth: minWidth }">
     <!-- 主体区域 -->
     <view class="e-select-main">
+      <!-- 全屏遮罩-->
+      <view class="e-select--mask" v-if="showSelector" @click="showSelector = false" />
       <view class="e-select" :class="{ 'e-select-disabled': disabled }">
-        <view class="e-select__input-box" @click="openSelector">
-          <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年是微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
-          <input class="e-select__input-text" :placeholder="placeholder" v-model="currentData" @input="filter" v-if="search && !disabled" />
+        <view class="e-select__input-box" @click.stop="openSelectList">
+          <!-- 当前值 -->
+          <input class="e-select__input-text" v-model="currentData" :placeholder="placeholder" @input="filter" v-if="search && !disabled" />
           <view class="e-select__input-text" v-else>
             {{ currentData || currentData === 0 ? currentData : placeholder }}
           </view>
@@ -17,32 +19,34 @@
             <uni-icons size="14" color="#999" type="top" class="arrowAnimation" :class="showSelector ? 'top' : 'bottom'" />
           </view>
         </view>
-        <!-- 全屏遮罩-->
-        <view class="e-select--mask" v-show="showSelector" @click="showSelector = false" />
-        <!-- 选项列表 这里用v-show是因为微信小程序会报警告 [Component] slot "" is not found，v-if会导致开发工具不能正确识别到slot -->
-        <!-- https://developers.weixin.qq.com/community/minihome/doc/000c8295730700d1cd7c81b9656c00 -->
-        <view class="e-select__selector" v-show="showSelector">
+        <!-- 选项列表-->
+        <view class="e-select__selector" v-if="showSelector">
           <!-- 三角小箭头 -->
           <view class="e-popper__arrow"></view>
-          <scroll-view scroll-y="true" class="e-select__selector-scroll" scroll-into-view="selectItemId" enhanced v-if="showSelector">
-            <!-- 空值 -->
-            <view class="e-select__selector-empty" v-if="currentOptions.length === 0">
-              <text>{{ emptyTips }}</text>
-            </view>
-            <!-- 非空,渲染选项列表 -->
-            <view
-              v-else
-              class="e-select__selector-item"
-              :class="[{ highlight: currentData == item[props.text] }, { 'e-select__selector-item-disabled': item[props.disabled] }]"
-              v-for="(item, index) in currentOptions"
-              :key="index"
-              @click="change(item, index)"
-            >
-              <text>{{ item[props.text] }}</text>
-              <view id="selectItemId" v-if="currentData == item[props.text]"></view>
+          <!-- scroll-into-view="selectItemId" -->
+          <scroll-view scroll-y="true" :scrollTop="scrollTop" class="e-select__selector-scroll" @scroll="scroll">
+            <view class="parentDom">
+              <!-- 可视区域的高度 -->
+              <view :style="{ height: screenHeight + 'px' }"></view>
+              <view class="positionRelative" :style="{ transform: getTransform }">
+                <!-- 空值 -->
+                <view class="e-select__selector-empty" v-if="currentOptions.length === 0">
+                  <text>{{ emptyTips }}</text>
+                </view>
+                <!-- 非空,渲染选项列表 -->
+                <view
+                  v-else
+                  class="e-select__selector-item"
+                  :class="[{ highlight: currentData == item[props.text] }, { 'e-select__selector-item-disabled': item[props.disabled] }]"
+                  v-for="(item, index) in visibleData"
+                  :key="index"
+                  @click.stop="change(item)"
+                >
+                  <text>{{ item[props.text] }}</text>
+                </view>
+              </view>
             </view>
           </scroll-view>
-          <slot />
         </view>
       </view>
     </view>
@@ -51,15 +55,25 @@
 
 <script>
 export default {
-  name: "e-select",
+  name: "e-vir-select",
   data() {
     return {
-      // 是否显示下拉选择列表
-      showSelector: false,
-      // 当前选项
-      currentOptions: [],
       // 当前值
-      currentData: ""
+      currentData: "",
+      // 当前选项列表
+      currentOptions: [],
+      /** 是否显示下拉选择列表 */
+      showSelector: false,
+      /** 偏移高度 */
+      startOffset: 0,
+      /** 起始显示数据 */
+      start: 0,
+      /** 结束显示数据 */
+      end: 5,
+      /** 预留的dom，避免快速滚动空白 */
+      remain: 20,
+      /** 列表滚动高度 */
+      scrollTop: 0
     }
   },
   props: {
@@ -70,13 +84,15 @@ export default {
         return []
       }
     },
-    // 配置选项
+    // 选项列表数据格式
     props: {
       type: Object,
-      default: {
-        text: "text",
-        value: "value",
-        disabled: "disabled"
+      default() {
+        return {
+          value: "value",
+          text: "text",
+          disabled: "disabled"
+        }
       }
     },
     // vue2 v-model传值方式
@@ -114,12 +130,17 @@ export default {
       type: Boolean,
       default: false
     },
-    // 是否禁用
+    // 是否整体禁用
     disabled: {
       type: Boolean,
       default: false
     },
-    // 开启搜索
+    // 每条数据的高度，注意注意，只支持px，修改每条数据的css高度后，才需要改变这个值
+    itemSize: {
+      type: Number,
+      default: 40
+    },
+    // 启动搜索模式
     search: {
       type: Boolean,
       default: true
@@ -145,6 +166,28 @@ export default {
       immediate: true
     }
   },
+  computed: {
+    /** 根据每条数据的高度获取总列表高度,最低一个元素 */
+    screenHeight() {
+      return Math.max(this.itemSize, this.currentOptions.length * this.itemSize)
+    },
+    /** 前面预留 */
+    prevCount() {
+      return Math.min(this.start, this.remain)
+    },
+    /** 后面预留 */
+    nextCount() {
+      return Math.min(this.remain, this.end)
+    },
+    /** 每次截取虚拟列表的位置 */
+    getTransform() {
+      return `translate(0,${this.startOffset}px)`
+    },
+    /** 虚拟数据 */
+    visibleData() {
+      return this.currentOptions.slice(this.start, Math.min(this.end, this.currentOptions.length))
+    }
+  },
   methods: {
     /** 处理数据，此函数用于兼容vue2 vue3 */
     initData() {
@@ -163,62 +206,109 @@ export default {
       } else {
         this.currentOptions = this.options
       }
-      // 回到顶部，该写法只支持快手京东微信小程序
-      uni
-        .createSelectorQuery()
-        .in(this)
-        .select(".e-select__selector-scroll")
-        .node()
-        .exec(res => {
-          const scrollView = res[0].node
-          scrollView.scrollTo({
-            top: 0
-          })
-        })
+      this.scrollTop === 0 ? (this.scrollTop = 0.001) : (this.scrollTop = 0) // 触发滚动事件，回到顶部
+      this.scrollFn(this.scrollTop)
     },
-    /** 改变值 */
+    /** 选择选项 */
     change(item) {
-      if (item[this.props.disabled]) return
+      const { disabled, value } = this.props
+      if (item[disabled]) return
       this.$emit("change", item)
-      this.emit(item)
+      this.emit(item[value])
+      this.currentOptions = this.options
       this.showSelector = false
     },
-    /** 传递父组件值 */
-    emit(item) {
-      this.$emit("input", item[this.props.value])
-      this.$emit("update:modelValue", item[this.props.value])
-    },
-    /** 清空值 */
+    /** 还原值,清空值 */
     clearVal() {
-      this.$emit("change", "")
-      this.$emit("input", "")
-      this.$emit("update:modelValue", "")
+      this.showSelector = false
+      this.start = 0
+      this.end = 5
+      this.startOffset = 0
+      this.$emit("change", "清空")
+      this.emit("")
     },
-    /** 切换列表选项显示, */
-    openSelector() {
-      if (this.disabled) return
+    /** 兼容vue2、vue3的v-model传值 */
+    emit(value) {
+      this.$emit("input", value)
+      this.$emit("update:modelValue", value)
+    },
+    /** 打开选择列表 */
+    openSelectList() {
+      if (this.disabled || this.showSelector) return
       this.showSelector = true
+      // 找到当前值所在的索引
+      if (this.currentData) {
+        this.currentOptions = this.options
+        for (let i = 0; i < this.options.length; i++) {
+          if (this.options[i][this.props.text] === this.currentData) {
+            this.start = i
+            break
+          }
+        }
+        this.end = this.start + this.nextCount + this.remain // 此时的结束索引
+        this.scrollTop = this.start * this.itemSize // 设置滚动
+      } else {
+        this.currentOptions = this.options
+        this.scrollTop = 0
+      }
+    },
+    /** 切换选择列表显示, */
+    toggleSelector() {
+      if (this.disabled) return
+      this.showSelector = !this.showSelector
+      this.currentOptions = this.options
+    },
+    /** 滚动事件 */
+    scroll(e) {
+      this.scrollFn(e.target.scrollTop)
+    },
+    /** 滚动函数 */
+    scrollFn(scrollTop) {
+      // 此时的开始索引
+      this.start = Math.floor(scrollTop / this.itemSize) - this.prevCount - this.remain >= 0 ? Math.floor(scrollTop / this.itemSize) - this.prevCount - this.remain : 0
+      this.end = this.start + this.nextCount + this.remain * 2 // 此时的结束索引
+      this.startOffset = this.start * this.itemSize // 此时的偏移量
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+/deep/ ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+/deep/ ::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  height: 30px;
+  background-color: #dedfe1;
+}
+
 .e-stat__select {
   display: flex;
   align-items: center;
+  padding: 15px;
   cursor: pointer;
   box-sizing: border-box;
   width: 100%;
-  padding: 15px;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   .e-select-main {
     width: 100%;
   }
+
   .e-select-disabled {
     background-color: #f5f7fa;
     cursor: not-allowed;
   }
+
+  .e-select--mask {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
   .e-select {
     font-size: 14px;
     box-sizing: border-box;
@@ -231,14 +321,16 @@ export default {
     align-items: center;
     border: 1px solid #dcdfe6;
     border-bottom: solid 1px #dddddd;
+
     .e-select__input-box {
       width: 100%;
-      min-height: 34px;
+      height: 34px;
       position: relative;
       display: flex;
       flex: 1;
       flex-direction: row;
       align-items: center;
+
       .e-select-icon {
         width: 50px;
         height: 100%;
@@ -246,17 +338,20 @@ export default {
         justify-content: center;
         align-items: center;
       }
+
       .arrowAnimation {
         transition: transform 0.3s;
       }
+
       .top {
         transform: rotateZ(0deg);
       }
+
       .bottom {
         transform: rotateZ(180deg);
       }
+
       .e-select__input-text {
-        color: #303030;
         padding-left: 7px;
         width: 100%;
         color: #333;
@@ -265,18 +360,8 @@ export default {
         -o-text-overflow: ellipsis;
         overflow: hidden;
       }
-      .e-select__input-placeholder {
-        padding-left: 7px;
-        color: #666;
-      }
     }
-    .e-select--mask {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-    }
+
     .e-select__selector {
       box-sizing: border-box;
       position: absolute;
@@ -288,8 +373,9 @@ export default {
       border-radius: 6px;
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
       z-index: 999;
-      padding: 4px 4px;
+      padding: 4px 0;
       transition: all 2s;
+
       .e-popper__arrow,
       .e-popper__arrow::after {
         position: absolute;
@@ -301,6 +387,7 @@ export default {
         border-style: solid;
         border-width: 6px;
       }
+
       .e-popper__arrow {
         filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.03));
         top: -6px;
@@ -310,6 +397,7 @@ export default {
         border-top-width: 0;
         border-bottom-color: #ebeef5;
       }
+
       .e-popper__arrow::after {
         content: " ";
         top: 1px;
@@ -317,29 +405,48 @@ export default {
         border-top-width: 0;
         border-bottom-color: #fff;
       }
+
       .e-select__selector-scroll {
         max-height: 200px;
-        box-sizing: border-box;
+
+        .parentDom {
+          position: relative;
+
+          .positionRelative {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 32rpx;
+          }
+        }
+
         .e-select__selector-empty,
         .e-select__selector-item {
           display: flex;
           cursor: pointer;
-          line-height: 34px;
+          height: 40px;
+          line-height: 40px;
           font-size: 14px;
           text-align: center;
           padding: 0px 10px;
+          box-sizing: border-box;
         }
+
         .e-select__selector-item:hover {
           background-color: #f9f9f9;
         }
+
         .e-select__selector-empty:last-child,
         .e-select__selector-item:last-child {
           border-bottom: none;
         }
+
         .e-select__selector-item-disabled {
           color: #b1b1b1;
           cursor: not-allowed;
         }
+
         .highlight {
           color: #409eff;
           font-weight: bold;
