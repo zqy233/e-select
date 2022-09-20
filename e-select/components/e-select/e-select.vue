@@ -5,16 +5,32 @@
       <view class="e-select" :class="{ 'e-select-disabled': disabled }">
         <view class="e-select__input-box" @click="openSelector">
           <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年是微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
-          <input class="e-select__input-text" :placeholder="placeholder" v-model="currentData" @input="filter" v-if="search && !disabled" />
+          <input
+            class="e-select__input-text"
+            :placeholder="placeholder"
+            v-model="currentData"
+            @input="filter"
+            v-if="search && !disabled"
+          />
           <view class="e-select__input-text" v-else>
             {{ currentData || currentData === 0 ? currentData : placeholder }}
           </view>
           <!-- 用一个更大的盒子包裹图标,便于点击 -->
-          <view class="e-select-icon" @click.stop="clearVal" v-if="currentData && clear && !disabled">
+          <view
+            class="e-select-icon"
+            @click.stop="clearVal"
+            v-if="currentData && clear && !disabled"
+          >
             <uni-icons type="clear" color="#e1e1e1" size="18" />
           </view>
           <view class="e-select-icon" @click.stop="toggleSelector" v-else>
-            <uni-icons size="14" color="#999" type="top" class="arrowAnimation" :class="showSelector ? 'top' : 'bottom'" />
+            <uni-icons
+              size="14"
+              color="#999"
+              type="top"
+              class="arrowAnimation"
+              :class="showSelector ? 'top' : 'bottom'"
+            />
           </view>
         </view>
         <!-- 全屏遮罩-->
@@ -24,8 +40,14 @@
         <view class="e-select__selector" v-show="showSelector">
           <!-- 三角小箭头 -->
           <view class="e-popper__arrow"></view>
-          <scroll-view scroll-y="true" class="e-select__selector-scroll" scroll-into-view="selectItemId" enhanced v-if="showSelector">
-            <!-- 空值 -->
+          <!-- #ifndef H5 ||  APP-PLUS || APP-NVUE -->
+          <scroll-view
+            scroll-y="true"
+            class="e-select__selector-scroll"
+            scroll-into-view="selectItemId"
+            enhanced
+            v-if="showSelector"
+          >
             <view class="e-select__selector-empty" v-if="currentOptions.length === 0">
               <text>{{ emptyTips }}</text>
             </view>
@@ -33,7 +55,10 @@
             <view
               v-else
               class="e-select__selector-item"
-              :class="[{ highlight: currentData == item[props.text] }, { 'e-select__selector-item-disabled': item[props.disabled] }]"
+              :class="[
+                { highlight: currentData == item[props.text] },
+                { 'e-select__selector-item-disabled': item[props.disabled] }
+              ]"
               v-for="(item, index) in currentOptions"
               :key="index"
               @click="change(item, index)"
@@ -42,6 +67,37 @@
               <view id="selectItemId" v-if="currentData == item[props.text]"></view>
             </view>
           </scroll-view>
+          <!-- #endif -->
+          <!-- #ifdef H5 ||  APP-PLUS || APP-NVUE -->
+          <scroll-view
+            scroll-y="true"
+            :scroll-top="scrollTop"
+            @scroll="scroll"
+            class="e-select__selector-scroll"
+            scroll-into-view="selectItemId"
+            enhanced
+            v-if="showSelector"
+          >
+            <view class="e-select__selector-empty" v-if="currentOptions.length === 0">
+              <text>{{ emptyTips }}</text>
+            </view>
+            <!-- 非空,渲染选项列表 -->
+            <view
+              v-else
+              class="e-select__selector-item"
+              :class="[
+                { highlight: currentData == item[props.text] },
+                { 'e-select__selector-item-disabled': item[props.disabled] }
+              ]"
+              v-for="(item, index) in currentOptions"
+              :key="index"
+              @click="change(item, index)"
+            >
+              <text>{{ item[props.text] }}</text>
+              <view id="selectItemId" v-if="currentData == item[props.text]"></view>
+            </view>
+          </scroll-view>
+          <!-- #endif -->
           <slot />
         </view>
       </view>
@@ -59,7 +115,11 @@ export default {
       // 当前选项
       currentOptions: [],
       // 当前值
-      currentData: ""
+      currentData: "",
+      // 旧的滚动高度
+      oldScrollTop: 0,
+      // 最新的滚动高度
+      scrollTop: 0
     }
   },
   props: {
@@ -73,10 +133,12 @@ export default {
     // 配置选项
     props: {
       type: Object,
-      default: {
-        text: "text",
-        value: "value",
-        disabled: "disabled"
+      default: function() {
+        return {
+          text: "text",
+          value: "value",
+          disabled: "disabled"
+        }
       }
     },
     // vue2 v-model传值方式
@@ -154,7 +216,12 @@ export default {
       }
       this.currentData = this.modelValue
     },
-    /** 过滤选项列表 */
+    /** 滚动时触发,用于设置高亮的滚动高度，h5端正常，小程序中会为0*/
+    scroll(e) {
+      //记录scroll位置
+      this.oldScrollTop = e.detail.scrollTop
+    },
+    /** 过滤选项列表，会自动回到顶部 */
     filter() {
       if (this.currentData) {
         this.currentOptions = this.options.filter(item => {
@@ -163,7 +230,16 @@ export default {
       } else {
         this.currentOptions = this.options
       }
-      // 回到顶部，该写法只支持快手京东微信小程序
+      // 回到顶部的一种写法，该写法支持app和h5，小程序下会存在不能自动滚动至高亮选项的问题
+      // #ifdef H5 ||  APP-PLUS || APP-NVUE
+      this.scrollTop = this.oldScrollTop // 设置当前滚动高度
+      // 当视图渲染结束重新设置为0，即回到顶部
+      this.$nextTick(() => {
+        this.scrollTop = 0
+      })
+      // #endif
+      // 回到顶部的另一种写法，该写法似乎只支持快手京东微信小程序，其他小程序还得需要测试，欢迎反馈或pull request
+      // #ifndef H5 ||  APP-PLUS || APP-NVUE
       uni
         .createSelectorQuery()
         .in(this)
@@ -175,6 +251,7 @@ export default {
             top: 0
           })
         })
+      // #endif
     },
     /** 改变值 */
     change(item) {
@@ -194,10 +271,15 @@ export default {
       this.$emit("input", "")
       this.$emit("update:modelValue", "")
     },
-    /** 切换列表选项显示, */
+    /** 列表选项显示, */
     openSelector() {
       if (this.disabled) return
       this.showSelector = true
+    },
+    /** 切换列表选项显示, */
+    toggleSelector() {
+      if (this.disabled) return
+      this.showSelector = !this.showSelector
     }
   }
 }
