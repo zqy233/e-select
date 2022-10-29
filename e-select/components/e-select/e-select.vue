@@ -21,7 +21,7 @@
             @click.stop="clearVal"
             v-if="currentData && clear && !disabled"
           >
-            <uni-icons type="clear" color="#e1e1e1" size="18" />
+            <uni-icons type="clear" color="#e1e1e1" size="18"></uni-icons>
           </view>
           <view class="e-select-icon" @click.stop="toggleSelector" v-else>
             <uni-icons
@@ -30,7 +30,7 @@
               type="top"
               class="arrowAnimation"
               :class="showSelector ? 'top' : 'bottom'"
-            />
+            ></uni-icons>
           </view>
         </view>
         <!-- 全屏遮罩-->
@@ -191,6 +191,7 @@ export default {
     options: {
       handler() {
         this.currentOptions = this.options
+        this.initData()
       },
       immediate: true
     },
@@ -211,10 +212,20 @@ export default {
     /** 处理数据，此函数用于兼容vue2 vue3 */
     initData() {
       this.currentData = ""
+      // vue2
       if (this.value || this.value === 0) {
-        return (this.currentData = this.value)
+        for (let item of this.options) {
+          if (item[this.props.value] === this.value) {
+            return (this.currentData = item[this.props.text])
+          }
+        }
       }
-      this.currentData = this.modelValue
+      // vue3
+      for (let item of this.options) {
+        if (item[this.props.value] === this.modelValue) {
+          return (this.currentData = item[this.props.text])
+        }
+      }
     },
     /** 滚动时触发,用于设置高亮的滚动高度，h5端正常，小程序中会为0*/
     scroll(e) {
@@ -274,6 +285,7 @@ export default {
     /** 列表选项显示, */
     openSelector() {
       if (this.disabled) return
+      this.currentOptions = this.options
       this.showSelector = true
     },
     /** 切换列表选项显示, */
