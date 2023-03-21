@@ -1,44 +1,59 @@
 <template>
-  <view class="e-stat__select" :style="{ width: width, minWidth: minWidth }">
+  <view
+    class="e-stat__select"
+    :style="{ width: width, minWidth: minWidth }">
     <!-- 主体区域 -->
     <view class="e-select-main">
-      <view class="e-select" :class="{ 'e-select-disabled': disabled }">
-        <view class="e-select__input-box" @click="toggleSelector">
+      <view
+        class="e-select"
+        :class="{ 'e-select-disabled': disabled }">
+        <view
+          class="e-select__input-box"
+          @click="toggleSelector">
           <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年时微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
           <input
             class="e-select__input-text"
             :placeholder="placeholder"
             v-model="currentData"
             @input="filter"
-            v-if="search && !disabled"
-          />
-          <view class="e-select__input-text" v-else>
-            11111111{{ scrollWithAnimation }}
+            v-if="search && !disabled" />
+          <view
+            class="e-select__input-text"
+            v-else>
             {{ currentData || currentData === 0 ? currentData : placeholder }}
           </view>
           <!-- 用一个更大的盒子包裹图标,便于点击 -->
           <view
             class="e-select-icon"
             @click.stop="clearVal"
-            v-if="currentData && clear && !disabled"
-          >
-            <uni-icons type="clear" color="#e1e1e1" size="18"></uni-icons>
+            v-if="currentData && clear && !disabled">
+            <uni-icons
+              type="clear"
+              color="#e1e1e1"
+              size="18"></uni-icons>
           </view>
-          <view class="e-select-icon" @click.stop="toggleSelector" v-else>
+          <view
+            class="e-select-icon"
+            @click.stop="toggleSelector"
+            v-else>
             <uni-icons
               size="14"
               color="#999"
               type="top"
               class="arrowAnimation"
-              :class="showSelector ? 'top' : 'bottom'"
-            ></uni-icons>
+              :class="showSelector ? 'top' : 'bottom'"></uni-icons>
           </view>
         </view>
         <!-- 全屏遮罩-->
-        <view class="e-select--mask" v-if="showSelector" @click="toggleSelector" />
+        <view
+          class="e-select--mask"
+          v-if="showSelector"
+          @click="toggleSelector" />
         <!-- 选项列表 这里用v-show是因为微信小程序会报警告 [Component] slot "" is not found，v-if会导致开发工具不能正确识别到slot -->
         <!-- https://developers.weixin.qq.com/community/minihome/doc/000c8295730700d1cd7c81b9656c00 -->
-        <view class="e-select__selector" v-show="showSelector">
+        <view
+          class="e-select__selector"
+          v-show="showSelector">
           <!-- 三角小箭头 -->
           <view class="e-popper__arrow"></view>
           <scroll-view
@@ -47,9 +62,10 @@
             class="e-select__selector-scroll"
             :scroll-into-view="scrollToId"
             :scroll-with-animation="scrollWithAnimation"
-            v-if="showSelector"
-          >
-            <view class="e-select__selector-empty" v-if="currentOptions.length === 0">
+            v-if="showSelector">
+            <view
+              class="e-select__selector-empty"
+              v-if="currentOptions.length === 0">
               <text>{{ emptyTips }}</text>
             </view>
             <!-- 非空,渲染选项列表 -->
@@ -64,10 +80,11 @@
               ]"
               v-for="(item, index) in currentOptions"
               :key="index"
-              @click="change(item, index)"
-            >
+              @click="change(item, index)">
               <text>{{ item[props.text] }}</text>
-              <view id="scrollToId" v-if="currentData == item[props.text]"></view>
+              <view
+                id="scrollToId"
+                v-if="currentData == item[props.text]"></view>
             </view>
           </scroll-view>
           <slot />
@@ -79,7 +96,7 @@
 
 <script>
 export default {
-  name: "e-select",
+  name: 'e-select',
   data() {
     return {
       // 是否显示下拉选择列表
@@ -87,23 +104,23 @@ export default {
       // 当前选项
       currentOptions: [],
       // 当前值
-      currentData: "",
+      currentData: '',
       // 旧的滚动高度
       oldScrollTop: 0,
       // 最新的滚动高度
       scrollTop: 0,
       // 滚动至的id
-      scrollToId: "",
+      scrollToId: '',
       // 滚动动画
       scrollWithAnimation: false,
-    }
+    };
   },
   props: {
     // 选项列表
     options: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     },
     // 配置选项
@@ -111,41 +128,41 @@ export default {
       type: Object,
       default: function () {
         return {
-          text: "text",
-          value: "value",
-          disabled: "disabled",
-        }
+          text: 'text',
+          value: 'value',
+          disabled: 'disabled',
+        };
       },
     },
     // vue2 v-model传值方式
     value: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // vue3 v-model传值方式
     modelValue: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // 占位
     placeholder: {
       type: String,
-      default: "请选择",
+      default: '请选择',
     },
     // 宽度
     width: {
       type: String,
-      default: "100%",
+      default: '100%',
     },
     // 最小宽度
     minWidth: {
       type: String,
-      default: "120rpx",
+      default: '120rpx',
     },
     // 空值占位
     emptyTips: {
       type: String,
-      default: "暂无选项",
+      default: '暂无选项',
     },
     // 是否可清除
     clear: {
@@ -171,21 +188,21 @@ export default {
   watch: {
     options: {
       handler() {
-        this.currentOptions = this.options
-        this.initData()
+        this.currentOptions = this.options;
+        this.initData();
       },
       immediate: true,
       deep: true,
     },
     modelValue: {
       handler() {
-        this.initData()
+        this.initData();
       },
       immediate: true,
     },
     value: {
       handler() {
-        this.initData()
+        this.initData();
       },
       immediate: true,
     },
@@ -193,13 +210,13 @@ export default {
   methods: {
     /** 处理数据，此函数用于兼容vue2 vue3 */
     initData() {
-      this.currentData = ""
+      this.currentData = '';
       // vue2
       if (this.value || this.value === 0) {
         for (let item of this.options) {
           if (item[this.props.value] === this.value) {
-            this.currentData = item[this.props.text]
-            return
+            this.currentData = item[this.props.text];
+            return;
           }
         }
       }
@@ -207,8 +224,8 @@ export default {
       if (this.modelValue || this.modelValue === 0) {
         for (let item of this.options) {
           if (item[this.props.value] === this.modelValue) {
-            this.currentData = item[this.props.text]
-            return
+            this.currentData = item[this.props.text];
+            return;
           }
         }
       }
@@ -216,66 +233,66 @@ export default {
     /** 过滤选项列表，会自动回到顶部 */
     filter() {
       if (this.currentData) {
-        this.currentOptions = this.options.filter(item => {
-          return item[this.props.text].indexOf(this.currentData) > -1
-        })
+        this.currentOptions = this.options.filter((item) => {
+          return item[this.props.text].indexOf(this.currentData) > -1;
+        });
       } else {
-        this.currentOptions = this.options
+        this.currentOptions = this.options;
       }
       // scrollTop变化，才能触发滚动顶部
-      this.scrollTop = 1
+      this.scrollTop = 1;
       this.$nextTick(() => {
-        this.scrollTop = 0
-      })
+        this.scrollTop = 0;
+      });
     },
     /** 改变值 */
     change(item, index) {
-      if (item[this.props.disabled]) return
+      if (item[this.props.disabled]) return;
       const data = {
         [this.props.text]: item[this.props.text],
         [this.props.value]: item[this.props.value],
         index,
-      }
-      this.$emit("change", data)
-      this.emit(data)
-      this.toggleSelector()
+      };
+      this.$emit('change', data);
+      this.emit(data);
+      this.toggleSelector();
     },
     /** 传递父组件值 */
     emit(item) {
-      this.$emit("input", item[this.props.value])
-      this.$emit("update:modelValue", item[this.props.value])
+      this.$emit('input', item[this.props.value]);
+      this.$emit('update:modelValue', item[this.props.value]);
     },
     /** 清空值 */
     clearVal() {
-      this.$emit("change", "clear")
-      this.$emit("input", "")
-      this.$emit("update:modelValue", "")
+      this.$emit('change', 'clear');
+      this.$emit('input', '');
+      this.$emit('update:modelValue', '');
     },
     /** 切换下拉显示 */
     toggleSelector() {
-      if (this.disabled) return
-      this.showSelector = !this.showSelector
+      if (this.disabled) return;
+      this.showSelector = !this.showSelector;
       if (this.showSelector) {
-        this.currentOptions = this.options
+        this.currentOptions = this.options;
         // scrollToId变化，才能触发scroll-to-view的滚动
-        this.scrollToId = ""
+        this.scrollToId = '';
         this.$nextTick(() => {
-          this.scrollToId = "scrollToId"
+          this.scrollToId = 'scrollToId';
           // 设计理念：只在filter时触发滚动动画，因为每次打开就触发，用户体验不好
           if (this.animation) {
             setTimeout(() => {
               // 开启滚动动画
-              this.scrollWithAnimation = true
-            }, 100)
+              this.scrollWithAnimation = true;
+            }, 100);
           }
-        })
+        });
       } else {
         // 关闭时关闭动画
-        this.scrollWithAnimation = false
+        this.scrollWithAnimation = false;
       }
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -388,7 +405,7 @@ export default {
       border-bottom-color: #ebeef5;
     }
     .e-popper__arrow::after {
-      content: " ";
+      content: ' ';
       top: 1px;
       margin-left: -6px;
       border-top-width: 0;
