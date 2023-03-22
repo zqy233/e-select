@@ -13,6 +13,11 @@
 ## 属性
 
 ```js
+/** 年year、年月month、年月日date */
+type: {
+  type: String,
+  default: "date"
+},
 /** 占位文本 */
 placeholder: {
   type: String,
@@ -35,7 +40,21 @@ clearIcon: {
 ```js
 <template>
   <view class="content">
-    <e-date-picker v-model="date" />
+    <e-date-picker
+      v-model="year"
+      placeholder="请选择年"
+      type="year" />
+    <e-date-picker
+      v-model="month"
+      type="month"
+      placeholder="请选择月" />
+    <e-date-picker
+      v-model="date"
+      type="date" />
+    <e-date-picker
+      v-model="date"
+      type="date"
+      disabled />
   </view>
 </template>
 
@@ -43,17 +62,21 @@ clearIcon: {
 export default {
   data() {
     return {
-      date: "2022-05-11",
-    }
-  }
-}
+      year: '',
+      month: '',
+      date: '',
+    };
+  },
+};
 </script>
 <style>
 .content {
   margin: 0 auto;
   width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 </style>
 
 ```
-
