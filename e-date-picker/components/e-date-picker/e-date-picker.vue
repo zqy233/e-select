@@ -1,188 +1,225 @@
 <template>
   <view class="uni-date">
     <!-- 输入框区域 -->
-    <view class="uni-date-editor" @click="show">
+    <view
+      class="uni-date-editor"
+      @click="show">
       <slot>
-        <view class="uni-date-editor--x uni-date-x--border" :class="{ 'uni-date-editor--x__disabled': disabled }">
-          <!-- 一个输入框组件 -->
+        <view
+          class="uni-date-editor--x uni-date-x--border"
+          :class="{ 'uni-date-editor--x__disabled': disabled }">
           <view class="uni-date-x uni-date-single">
             <!-- 日期图标 -->
-            <uni-icons type="calendar" color="#e1e1e1" size="22" />
-            <!-- 输入框不能输入，只用于触发日期弹窗显示 -->
-            <input class="uni-date__x-input" type="text" v-model="date" :placeholder="placeholder" :disabled="true" />
+            <uni-icons
+              type="calendar"
+              color="#e1e1e1"
+              size="22" />
+            <!-- 输入框不能输入，只用于点击显示日期弹窗 -->
+            <input
+              class="uni-date__x-input"
+              type="text"
+              v-model="date"
+              :placeholder="placeholder"
+              :disabled="true" />
           </view>
-          <!-- 输入框是否显示清除按钮 -->
-          <view v-if="showClearIcon" class="uni-date__icon-clear" @click.stop="clear">
-            <uni-icons type="clear" color="#e1e1e1" size="18" />
+          <!-- 清除按钮 -->
+          <view
+            v-if="showClearIcon"
+            class="uni-date__icon-clear"
+            @click.stop="clear">
+            <uni-icons
+              type="clear"
+              color="#e1e1e1"
+              size="18" />
           </view>
         </view>
       </slot>
     </view>
     <!-- 弹窗遮罩 -->
-    <view v-show="popup" class="uni-date-mask" @click="close"></view>
+    <view
+      v-show="popup"
+      class="uni-date-mask"
+      @click="close"></view>
     <!-- 日期弹窗 -->
-    <view ref="datePicker" v-show="popup" class="uni-date-picker__container">
+    <view
+      ref="datePicker"
+      v-show="popup"
+      class="uni-date-picker__container">
       <view class="uni-date-single--x">
         <!-- 指示小三角 -->
         <view class="uni-popper__arrow"></view>
-        <!-- 日期列表 -->
-        <calendar ref="pcSingle" :date="date" @change="change" />
+        <!-- 日期选择列表 -->
+        <calendar
+          ref="pcSingle"
+          :date="date"
+          @change="change"
+          :type="type" />
         <view class="uni-date-popper__arrow"></view>
       </view>
     </view>
   </view>
 </template>
 <script>
-import calendar from "./calendar.vue"
+import calendar from './calendar.vue';
 
 export default {
-  name: "UniDatetimePicker",
+  name: 'UniDatetimePicker',
   components: {
-    calendar
+    calendar,
   },
   data() {
     return {
       /** 显示在input输入框的值 */
-      date: "",
+      date: '',
       /** 是否显示日期选择列表 */
-      popup: false
-    }
+      popup: false,
+    };
   },
   props: {
+    type: {
+      type: String,
+      default: 'date',
+    },
     /** vue2传值写法 */
     value: {
       type: String,
-      default: ""
+      default: '',
     },
     /** vue3传值写法 */
     modelValue: {
       type: String,
-      default: ""
+      default: '',
     },
     /** 占位文本 */
     placeholder: {
       type: String,
-      default: "选择日期"
+      default: '选择日期',
     },
     /** 是否禁用 */
     disabled: {
       type: [Boolean],
-      default: false
+      default: false,
     },
     /** 是否显示清除图标 */
     clearIcon: {
       type: [Boolean],
-      default: true
-    }
+      default: true,
+    },
   },
   watch: {
     /** vue2动态赋值 */
     value() {
-      this.setDate()
+      this.setDate();
     },
     /** vue3动态赋值 */
     modelValue() {
-      this.setDate()
-    }
+      this.setDate();
+    },
   },
   computed: {
     /** 判断是否显示清除图标 */
     showClearIcon() {
-      const { clearIcon, disabled, date } = this
-      // clearIcon为真,disabled为假，日期值为真
-      return clearIcon && !disabled && date
-    }
+      const { clearIcon, disabled, date } = this;
+      // clearIcon为真，disabled为假，日期值为真
+      return clearIcon && !disabled && date;
+    },
   },
   created() {
-    this.setDate()
+    this.setDate();
   },
   methods: {
     /** 设置date，兼容vue2和vue3的传值方式 */
     setDate() {
       if (this.value === 0 || this.value) {
-        this.date = this.value
+        this.date = this.value;
       }
       if (this.modelValue === 0 || this.modelValue) {
-        this.date = this.modelValue
+        this.date = this.modelValue;
       }
     },
     /** 点击input输入框时打开日期选择弹窗 */
     show() {
       // 如果禁用则不往下执行
       if (this.disabled) {
-        return
+        return;
       }
       setTimeout(() => {
-        this.popup = !this.popup
-      }, 50)
+        this.popup = !this.popup;
+      }, 50);
     },
     /** 点击遮罩层触发关闭事件 */
     close() {
       setTimeout(() => {
-        this.popup = false
-      }, 20)
+        this.popup = false;
+      }, 20);
     },
     /** 设置传递给父组件的值 */
     setEmit(value) {
-      this.$emit("change", value)
-      this.$emit("input", value)
-      this.$emit("update:modelValue", value)
+      this.$emit('change', value);
+      this.$emit('input', value);
+      this.$emit('update:modelValue', value);
     },
     /** 日期更改时触发 */
     change(date) {
-      this.date = date
-      this.setEmit(this.date)
-      this.popup = false
+      this.date = date;
+      this.setEmit(this.date);
+      this.popup = false;
     },
     /** 点击清除图标或文本，清除内容 */
     clear() {
       // 单个选择
-      this.date = ""
+      this.date = '';
       // 清除子组件的date
-      this.$refs.pcSingle.clearCalender()
+      this.$refs.pcSingle.clearCalender();
       // 清除日期列表的数据
-      this.$emit("change", "")
-      this.$emit("input", "")
-      this.$emit("update:modelValue", "")
+      this.$emit('change', '');
+      this.$emit('input', '');
+      this.$emit('update:modelValue', '');
     },
     /** 处理日期，返回yyyy-mm-dd的格式和hh-mm-ss的格式*/
     parseDate(date) {
-      date = this.fixIosDateFormat(date)
-      const defVal = new Date(date)
-      const year = defVal.getFullYear()
-      const month = defVal.getMonth() + 1
-      const day = defVal.getDate()
-      const hour = defVal.getHours()
-      const minute = defVal.getMinutes()
-      const second = defVal.getSeconds()
-      const defDate = year + "-" + this.lessTen(month) + "-" + this.lessTen(day)
-      const defTime = this.lessTen(hour) + ":" + this.lessTen(minute) + ":" + this.lessTen(second)
+      date = this.fixIosDateFormat(date);
+      const defVal = new Date(date);
+      const year = defVal.getFullYear();
+      const month = defVal.getMonth() + 1;
+      const day = defVal.getDate();
+      const hour = defVal.getHours();
+      const minute = defVal.getMinutes();
+      const second = defVal.getSeconds();
+      const defDate =
+        year + '-' + this.lessTen(month) + '-' + this.lessTen(day);
+      const defTime =
+        this.lessTen(hour) +
+        ':' +
+        this.lessTen(minute) +
+        ':' +
+        this.lessTen(second);
       return {
         defDate,
-        defTime
-      }
+        defTime,
+      };
     },
     /** 获取日期的毫秒数 */
     createTimestamp(date) {
-      date = this.fixIosDateFormat(date)
-      return Date.parse(new Date(date))
+      date = this.fixIosDateFormat(date);
+      return Date.parse(new Date(date));
     },
     /** 兼容 iOS、safari 日期格式 */
     fixIosDateFormat(value) {
-      if (typeof value === "string") {
-        value = value.replace(/-/g, "/")
+      if (typeof value === 'string') {
+        value = value.replace(/-/g, '/');
       }
-      return value
+      return value;
     },
     /** 小于10的数字前加上0 */
     lessTen(item) {
-      return item < 10 ? "0" + item : item
-    }
-  }
-}
+      return item < 10 ? '0' + item : item;
+    },
+  },
+};
 </script>
 
-<style scoped>
+<style>
 .uni-date-x {
   display: flex;
   flex-direction: row;
@@ -382,7 +419,7 @@ export default {
 }
 
 .uni-popper__arrow::after {
-  content: " ";
+  content: ' ';
   top: 1px;
   margin-left: -6px;
   border-top-width: 0;

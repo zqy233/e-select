@@ -4,20 +4,21 @@
   <view
     class="uni-calendar-item__weeks-box"
     :class="{
-      'uni-calendar-item--disable': item.disable
+      'uni-calendar-item--disable': item.disable,
     }"
-    @click="choiceDate(item)"
-  >
+    @click="choiceDate(item)">
     <!-- uni-calendar-item--checked选中的文本的背景颜色 -->
     <view
       class="uni-calendar-item__weeks-box-item"
       :class="{
         'uni-calendar-item--checked': nowDate.fullDate === item.fullDate,
-        'uni-calendar-item--disable': item.disable
-      }"
-    >
+        'uni-calendar-item--disable': item.disable,
+      }">
       <!-- 日期名 -->
-      <text class="uni-calendar-item__weeks-box-text uni-calendar-item__weeks-box-text-disable uni-calendar-item--checked-text">{{ item.date }}</text>
+      <text
+        class="uni-calendar-item__weeks-box-text uni-calendar-item__weeks-box-text-disable uni-calendar-item--checked-text">
+        {{ item.date }}
+      </text>
     </view>
     <!-- 今日则显示一个小圆点 -->
     <view :class="{ 'uni-calendar-item--isDay': item.isDay }"></view>
@@ -31,24 +32,24 @@ export default {
     item: {
       type: Object,
       default() {
-        return {}
-      }
+        return {};
+      },
     },
     /** 当前的日期 */
     nowDate: {
       type: Object,
       default: () => {
-        return {}
-      }
-    }
+        return {};
+      },
+    },
   },
   methods: {
     /** 点击数据时触发 */
     choiceDate(weeks) {
-      this.$emit("change", weeks)
-    }
-  }
-}
+      this.$emit('change', weeks);
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

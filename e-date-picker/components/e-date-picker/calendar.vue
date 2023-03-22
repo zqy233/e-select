@@ -5,57 +5,110 @@
       <!-- 头部区域 -->
       <view class="uni-calendar__header">
         <!-- 左侧的箭头 -->
-        <view class="uni-calendar__header-btn-box" @click.stop="pre">
+        <view
+          class="uni-calendar__header-btn-box"
+          @click.stop="pre">
           <view class="uni-calendar__header-btn uni-calendar--left"></view>
         </view>
         <!-- 年月文本 -->
         <view>
-          <text class="uni-calendar__header-text" @click="showYears">
-            {{ (nowDate.year || "") + " 年 " }}
+          <text
+            class="uni-calendar__header-text"
+            @click="showYears">
+            {{ (nowDate.year || '') + ' 年 ' }}
           </text>
-          <text class="uni-calendar__header-text" @click="showMonths">
-            {{ (nowDate.month || "") + " 月" }}
+          <text
+            class="uni-calendar__header-text"
+            @click="showMonths"
+            v-show="type !== 'year'">
+            {{ (nowDate.month || '') + ' 月' }}
           </text>
         </view>
         <!-- 右侧的箭头 -->
-        <view class="uni-calendar__header-btn-box" @click.stop="next">
+        <view
+          class="uni-calendar__header-btn-box"
+          @click.stop="next">
           <view class="uni-calendar__header-btn uni-calendar--right"></view>
         </view>
       </view>
       <view class="uni-calendar__box">
         <!--文本：日 一 二 三 四 五 六 -->
-        <view class="uni-calendar__weeks" style="padding-bottom: 7px" v-show="showType == 1">
-          <view class="uni-calendar__weeks-day" v-for="item in ['日', '一', '二', '三', '四', '五', '六']" :key="item">
-            <text class="uni-calendar__weeks-day-text">{{ item }}</text>
+        <view
+          class="uni-calendar__weeks"
+          style="padding-bottom: 7px"
+          v-show="showType == 1">
+          <view
+            class="uni-calendar__weeks-day"
+            v-for="item in ['日', '一', '二', '三', '四', '五', '六']"
+            :key="item">
+            <text class="uni-calendar__weeks-day-text">
+              {{ item }}
+            </text>
           </view>
         </view>
         <!-- 日期列表 -->
-        <view v-show="showType == 1" class="list">
-          <view class="uni-calendar__weeks" v-for="(item, index) in weeks" :key="index">
+        <view
+          v-show="showType == 1"
+          class="list">
+          <view
+            class="uni-calendar__weeks"
+            v-for="(item, index) in weeks"
+            :key="index">
             <!-- 每行日期 -->
-            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
+            <view
+              class="uni-calendar__weeks-item"
+              v-for="(itemData, itemIndex) in item"
+              :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
+              <calendar-item
+                class="uni-calendar-item--hook"
+                :item="itemData"
+                :nowDate="nowDate"
+                @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
         <!-- 月数列表 -->
-        <view v-show="showType == 2" class="list">
-          <view class="uni-calendar__weeks" v-for="(item, index) in months" :key="index">
+        <view
+          v-show="showType == 2"
+          class="list">
+          <view
+            class="uni-calendar__weeks"
+            v-for="(item, index) in months"
+            :key="index">
             <!-- 每行日期 -->
-            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
+            <view
+              class="uni-calendar__weeks-item"
+              v-for="(itemData, itemIndex) in item"
+              :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
+              <calendar-item
+                class="uni-calendar-item--hook"
+                :item="itemData"
+                :nowDate="nowDate"
+                @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
         <!-- 年份列表 -->
-        <view v-show="showType == 3" class="list">
-          <view class="uni-calendar__weeks" v-for="(item, index) in years" :key="index">
+        <view
+          v-show="showType == 3"
+          class="list">
+          <view
+            class="uni-calendar__weeks"
+            v-for="(item, index) in years"
+            :key="index">
             <!-- 每行日期 -->
-            <view class="uni-calendar__weeks-item" v-for="(itemData, itemIndex) in item" :key="itemIndex">
+            <view
+              class="uni-calendar__weeks-item"
+              v-for="(itemData, itemIndex) in item"
+              :key="itemIndex">
               <!-- 单个日期 -->
-              <calendar-item class="uni-calendar-item--hook" :item="itemData" :nowDate="nowDate" @change="choiceDate"></calendar-item>
+              <calendar-item
+                class="uni-calendar-item--hook"
+                :item="itemData"
+                :nowDate="nowDate"
+                @change="choiceDate"></calendar-item>
             </view>
           </view>
         </view>
@@ -65,18 +118,21 @@
 </template>
 
 <script>
-import Calendar from "./util.js"
-import calendarItem from "./calendar-item.vue"
+import Calendar from './util.js';
+import calendarItem from './calendar-item.vue';
 export default {
   components: {
-    calendarItem
+    calendarItem,
   },
   props: {
     /** 日期 */
     date: {
       type: String,
-      default: ""
-    }
+    },
+    /** 类别 */
+    type: {
+      type: String,
+    },
   },
   data() {
     return {
@@ -86,110 +142,141 @@ export default {
       years: [],
       /** 日列表 */
       weeks: [],
-      /** 1显示日列表，2显示月列表，3显示年列表 */
-      showType: 1,
       /** 日期函数类的实例 */
       cale: {},
-      /** 当前日期 */
-      nowDate: ""
-    }
+      /** 当前日期信息 */
+      nowDate: {},
+      /** 显示年月日列表中 */
+      showType: 1,
+    };
   },
   watch: {
     /** 动态赋值 */
     date() {
-      this.setDate(this.date)
-    }
+      this.setDate(this.date);
+    },
   },
+  computed: {},
   mounted() {
     // 获取日历方法实例
-    this.cale = new Calendar()
+    this.cale = new Calendar();
     // 选中某一天
-    console.log("this.da", this.date)
-    this.setDate(this.date)
+    this.setDate(this.date);
+
+    if (this.type === 'year') {
+      this.showYears();
+    }
+
+    if (this.type === 'month') {
+      this.showMonths();
+    }
   },
   methods: {
     /** 供父组件调用，去除高亮 */
     clearCalender() {
-      this.nowDate.fullDate = ""
-      this.setDate()
+      this.nowDate.fullDate = '';
+      this.setDate();
     },
     /** 显示月列表 */
     showMonths() {
-      this.showType = 2
+      this.showType = 2;
     },
     /** 显示年列表 */
     showYears() {
-      this.showType = 3
+      this.showType = 3;
     },
     /** 点击日期时触发 */
-    change() {
-      this.$emit("change", this.nowDate.fullDate)
+    change(date) {
+      this.$emit('change', date);
     },
     /** 选择日期  */
-    choiceDate(weeks) {
-      if (weeks.disable) return
+    choiceDate(dateInfo) {
+      if (dateInfo.disable) return;
       // 选择日
       if (this.showType == 1) {
-        this.setDate(weeks.fullDate)
-        // 传给父组件
-        this.change()
+        this.setDate(dateInfo.fullDate);
+        if (this.type === 'date') {
+          this.change(dateInfo.fullDate);
+        }
       }
       // 选择月，则显示日列表
       if (this.showType == 2) {
-        const month = new Date(this.nowDate.fullDate).getMonth() + 1
-        const differ = Number(weeks.date.replace("月", "")) - month
-        const date = this.cale.getDate(this.nowDate.fullDate, differ, "month").fullDate
-        this.showType = 1
-        this.setDate(date)
+        const month = new Date(this.nowDate.fullDate).getMonth() + 1;
+        const differ = Number(dateInfo.date.replace('月', '')) - month;
+        const date = this.cale.getDate(this.nowDate.fullDate, differ, 'month');
+        this.setDate(date.fullDate);
+        if (this.type === 'date') {
+          this.showType = 1;
+        }
+        if (this.type === 'month') {
+          this.change(date.year + '-' + date.month);
+        }
       }
       // 选择年，则显示月列表
       if (this.showType == 3) {
-        const year = new Date(this.nowDate.fullDate).getFullYear()
-        const differ = weeks.date - year
-        const date = this.cale.getDate(this.nowDate.fullDate, differ, "year").fullDate
-        this.showType = 2
-        this.setDate(date)
+        const year = new Date(this.nowDate.fullDate).getFullYear();
+        const differ = dateInfo.date - year;
+        const date = this.cale.getDate(this.nowDate.fullDate, differ, 'year');
+        this.setDate(date.fullDate);
+        if (this.type === 'month' || this.type === 'date') {
+          this.showType = 2;
+        }
+        if (this.type === 'year') {
+          this.change(String(date.year));
+        }
       }
     },
     /** 点击左箭头时触发 */
     pre() {
-      let preDate = ""
+      let preDate = '';
       // 年列表，每次往前推1年
       if (this.showType === 3) {
-        preDate = this.cale.getDate(this.nowDate.fullDate, -1, "year").fullDate
+        preDate = this.cale.getDate(this.nowDate.fullDate, -1, 'year').fullDate;
       }
       // 月列表或日列表，每次往前推一个月
       if (this.showType === 2 || this.showType === 1) {
-        preDate = this.cale.getDate(this.nowDate.fullDate, -1, "month").fullDate
+        preDate = this.cale.getDate(
+          this.nowDate.fullDate,
+          -1,
+          'month'
+        ).fullDate;
       }
-      this.setDate(preDate)
+      this.setDate(preDate);
     },
     /** 点击右箭头时触发 */
     next() {
-      let nextDate = ""
+      let nextDate = '';
       // 年列表，每次往后推1年
       if (this.showType === 3) {
-        nextDate = this.cale.getDate(this.nowDate.fullDate, +1, "year").fullDate
+        nextDate = this.cale.getDate(
+          this.nowDate.fullDate,
+          +1,
+          'year'
+        ).fullDate;
       }
       // 月列表或日列表，每次往后推一个月
       if (this.showType === 2 || this.showType === 1) {
-        nextDate = this.cale.getDate(this.nowDate.fullDate, +1, "month").fullDate
+        nextDate = this.cale.getDate(
+          this.nowDate.fullDate,
+          +1,
+          'month'
+        ).fullDate;
       }
-      this.setDate(nextDate)
+      this.setDate(nextDate);
     },
     /** 设置日期 */
     setDate(date) {
-      this.cale.setDate(date)
-      this.weeks = this.cale.weeks
-      this.months = this.cale.months
-      this.years = this.cale.years
-      this.nowDate = this.cale.getInfo(date)
-    }
-  }
-}
+      this.cale.setDate(date);
+      this.weeks = this.cale.weeks;
+      this.months = this.cale.months;
+      this.years = this.cale.years;
+      this.nowDate = this.cale.getInfo(date);
+    },
+  },
+};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .uni-calendar {
   /* #ifndef APP-NVUE */
   display: flex;
