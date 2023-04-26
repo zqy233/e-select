@@ -37,7 +37,7 @@ clearIcon: {
 
 ## 用法
 
-```js
+```html
 <template>
   <view class="content">
     <e-date-picker
@@ -59,24 +59,23 @@ clearIcon: {
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      year: '',
-      month: '',
-      date: '',
-    };
-  },
-};
+  export default {
+    data() {
+      return {
+        year: '',
+        month: '',
+        date: '',
+      };
+    },
+  };
 </script>
 <style>
-.content {
-  margin: 0 auto;
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
+  .content {
+    margin: 0 auto;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
 </style>
-
 ```

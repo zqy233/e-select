@@ -92,126 +92,124 @@
 
 ```html
 <template>
-  <view>
-    <view style="padding: 5px 15px;">值：{{ value1 }}</view>
-    <view style="padding: 0px 15px;">基础用法（默认宽度100%）</view>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-    ></e-select>
-    <view style="padding: 0px 15px;">设置固定宽度</view>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-      width="400rpx"
-    ></e-select>
-    <view style="padding: 0px 15px;">可清除</view>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-      clear
-    ></e-select>
-    <view style="padding: 0px 15px;">禁用</view>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-      disabled
-    ></e-select>
-    <view style="padding: 0px 15px;">关闭搜索过滤</view>
-    <e-select
-      v-model="value1"
-      :options="options1"
-      @change="change1"
-      :search="false"
-    ></e-select>
-    <view style="padding: 0px 15px;">设置placeholder</view>
-    <e-select
-      v-model="value2"
-      :options="options1"
-      @change="change1"
-      placeholder="选择选项"
-    ></e-select>
-    <view style="padding: 0px 15px;">设置数据格式</view>
-    <e-select
-      v-model="value2"
-      :options="options2"
-      :props="props2"
-      @change="change2"
-    ></e-select>
-    <view style="padding: 0px 15px;">分页</view>
-    <e-select v-model="value1" :options="options1" @change="change1">
-      <!-- 内置插槽，可以搭配官方uni-ui的分页组件使用 -->
-      <uni-pagination
-        show-icon="true"
-        :total="1000"
-        :pageSize="100"
-        :current="2"
-        @change="page1"
-      ></uni-pagination>
-    </e-select>
-  </view>
+    <view>
+        <view style="padding: 5px 15px">值：{{ value1 }}</view>
+        <view style="padding: 0px 15px">基础用法（默认宽度100%）</view>
+        <e-select
+            v-model="value1"
+            :options="options1"
+            @change="change1"
+            @getText="getText"></e-select>
+        <view style="padding: 0px 15px">设置固定宽度</view>
+        <e-select
+            v-model="value1"
+            :options="options1"
+            @change="change1"
+            width="400rpx"></e-select>
+        <view style="padding: 0px 15px">可清除</view>
+        <e-select
+            v-model="value1"
+            :options="options1"
+            @change="change1"
+            clear></e-select>
+        <view style="padding: 0px 15px">禁用</view>
+        <e-select
+            v-model="value1"
+            :options="options1"
+            @change="change1"
+            disabled></e-select>
+        <view style="padding: 0px 15px">关闭搜索过滤</view>
+        <e-select
+            v-model="value1"
+            :options="options1"
+            @change="change1"
+            :search="false"></e-select>
+        <view style="padding: 0px 15px">设置placeholder</view>
+        <e-select
+            v-model="value2"
+            :options="options1"
+            @change="change1"
+            placeholder="选择选项"></e-select>
+        <view style="padding: 0px 15px">设置数据格式</view>
+        <e-select
+            v-model="value2"
+            :options="options2"
+            :props="props2"
+            @change="change2"></e-select>
+        <view style="padding: 0px 15px">分页</view>
+        <e-select v-model="value1" :options="options1" @change="change1">
+            <!-- 内置插槽，可以搭配官方uni-ui的分页组件使用 -->
+            <uni-pagination
+                show-icon="true"
+                :total="1000"
+                :pageSize="100"
+                :current="2"
+                @change="page1"></uni-pagination>
+        </e-select>
+    </view>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      value1: 50,
-      value2: "",
-      // 默认选项数据结构，使用默认可以不传
-      // props1: {
-      //   text: "text",
-      //   value: "value",
-      //   disabled: "disabled"
-      // },
-      // 更改选项数据结构
-      props2: {
-        text: "label",
-        value: "data",
-        disabled: "noallowed"
-      },
-      options1: [],
-      options2: []
-    }
-  },
-  methods: {
-    change1(item) {
-      console.log(item)
+    data() {
+        return {
+            value1: 50,
+            value2: "",
+            // 默认选项数据结构，使用默认可以不传
+            // props1: {
+            //   text: "text",
+            //   value: "value",
+            //   disabled: "disabled"
+            // },
+            // 更改选项数据结构
+            props2: {
+                text: "label",
+                value: "data",
+                disabled: "noallowed",
+            },
+            options1: [],
+            options2: [],
+        };
     },
-    change2(item) {
-      console.log(item)
+    methods: {
+        getText(value) {
+            console.log(value);
+        },
+        change1(item) {
+            console.log(item);
+        },
+        change2(item) {
+            console.log(item);
+        },
+        page1(item) {
+            console.log(item);
+        },
     },
-    page1(item) {
-      console.log(item)
-    }
-  },
-  mounted() {
-    for (let i = 0; i < 100; i++) {
-      this.options1.push({
-        text: "Shenzhen" + i,
-        value: i
-      })
-    }
-    for (let i = 0; i < 100; i++) {
-      // 禁用指定选项
-      if (i === 59 || i === 61) {
-        this.options2.push({
-          label: "Shenzhen" + i,
-          data: i,
-          noallowed: true
-        })
-      } else {
-        this.options2.push({
-          label: "Shenzhen" + i,
-          data: i
-        })
-      }
-    }
-  }
-}
+    mounted() {
+        for (let i = 0; i < 100; i++) {
+            this.options1.push({
+                text: "Shenzhen" + i,
+                value: i,
+                a: "a",
+                b: "b",
+            });
+        }
+        for (let i = 0; i < 100; i++) {
+            // 禁用指定选项
+            if (i === 59 || i === 61) {
+                this.options2.push({
+                    label: "Shenzhen" + i,
+                    data: i,
+                    noallowed: true,
+                });
+            } else {
+                this.options2.push({
+                    label: "Shenzhen" + i,
+                    data: i,
+                });
+            }
+        }
+    },
+};
 </script>
 ```

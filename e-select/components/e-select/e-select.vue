@@ -216,6 +216,7 @@ export default {
         for (let item of this.options) {
           if (item[this.props.value] === this.value) {
             this.currentData = item[this.props.text];
+            this.$emit('getText', this.currentData);
             return;
           }
         }
@@ -225,6 +226,7 @@ export default {
         for (let item of this.options) {
           if (item[this.props.value] === this.modelValue) {
             this.currentData = item[this.props.text];
+            this.$emit('getText', this.currentData);
             return;
           }
         }
@@ -232,6 +234,7 @@ export default {
     },
     /** 过滤选项列表，会自动回到顶部 */
     filter() {
+      this.$emit('getText', this.currentData);
       if (this.currentData) {
         this.currentOptions = this.options.filter((item) => {
           return item[this.props.text].indexOf(this.currentData) > -1;
@@ -249,8 +252,7 @@ export default {
     change(item, index) {
       if (item[this.props.disabled]) return;
       const data = {
-        [this.props.text]: item[this.props.text],
-        [this.props.value]: item[this.props.value],
+        ...item,
         index,
       };
       this.$emit('change', data);
