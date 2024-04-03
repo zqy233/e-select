@@ -1,94 +1,105 @@
 <template>
   <view
-    class="e-stat__select"
+    class="e-select-box"
     :style="{ width: width, minWidth: minWidth }">
-    <!-- 主体区域 -->
-    <view class="e-select-main">
+    <view
+      class="e-select"
+      :class="{ 'e-select-disabled': disabled }">
       <view
-        class="e-select"
-        :class="{ 'e-select-disabled': disabled }">
+        class="e-select-input-box"
+        @click="toggleSelector">
+        <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年时微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
+        <input
+          class="e-select-input-text"
+          :placeholder="placeholder"
+          placeholder-class="e-select-input-placeholder"
+          v-model="currentData"
+          @input="filter"
+          v-if="search && !disabled" />
         <view
-          class="e-select__input-box"
-          @click="toggleSelector">
-          <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年时微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
-          <input
-            class="e-select__input-text"
-            :placeholder="placeholder"
-            v-model="currentData"
-            @input="filter"
-            v-if="search && !disabled" />
-          <view
-            class="e-select__input-text"
-            v-else>
-            {{ currentData || currentData === 0 ? currentData : placeholder }}
-          </view>
-          <!-- 用一个更大的盒子包裹图标,便于点击 -->
-          <view
-            class="e-select-icon"
-            @click.stop="clearVal"
-            v-if="currentData && clear && !disabled">
-            <uni-icons
-              type="clear"
-              color="#e1e1e1"
-              size="18"></uni-icons>
-          </view>
-          <view
-            class="e-select-icon"
-            @click.stop="toggleSelector"
-            v-else>
-            <uni-icons
-              size="14"
-              color="#999"
-              type="top"
-              class="arrowAnimation"
-              :class="showSelector ? 'top' : 'bottom'"></uni-icons>
-          </view>
+          class="e-select-input-text"
+          :class="{
+            'e-select-input-placeholder': !(currentData || currentData === 0),
+          }"
+          v-else>
+          {{ currentData || currentData === 0 ? currentData : placeholder }}
         </view>
-        <!-- 全屏遮罩-->
+        <!-- 清空图标，用一个更大的盒子包裹图标,便于点击 -->
         <view
-          class="e-select--mask"
-          v-if="showSelector"
-          @click="toggleSelector" />
-        <!-- 选项列表 这里用v-show是因为微信小程序会报警告 [Component] slot "" is not found，v-if会导致开发工具不能正确识别到slot -->
-        <!-- https://developers.weixin.qq.com/community/minihome/doc/000c8295730700d1cd7c81b9656c00 -->
-        <view
-          class="e-select__selector"
-          v-show="showSelector">
-          <!-- 三角小箭头 -->
-          <view class="e-popper__arrow"></view>
-          <scroll-view
-            scroll-y="true"
-            :scroll-top="scrollTop"
-            class="e-select__selector-scroll"
-            :scroll-into-view="scrollToId"
-            :scroll-with-animation="scrollWithAnimation"
-            v-if="showSelector">
-            <view
-              class="e-select__selector-empty"
-              v-if="currentOptions.length === 0">
-              <text>{{ emptyTips }}</text>
-            </view>
-            <!-- 非空,渲染选项列表 -->
-            <view
-              v-else
-              class="e-select__selector-item"
-              :class="[
-                { highlight: currentData == item[props.text] },
-                {
-                  'e-select__selector-item-disabled': item[props.disabled],
-                },
-              ]"
-              v-for="(item, index) in currentOptions"
-              :key="index"
-              @click="change(item, index)">
-              <text>{{ item[props.text] }}</text>
-              <view
-                id="scrollToId"
-                v-if="currentData == item[props.text]"></view>
-            </view>
-          </scroll-view>
-          <slot />
+          class="e-select-icon"
+          @click.stop="clearVal"
+          v-if="currentData && clear && !disabled">
+          <uni-icons
+            type="clear"
+            color="#e1e1e1"
+            size="16"></uni-icons>
         </view>
+        <!-- 箭头图标，同上 -->
+        <view
+          class="e-select-icon"
+          @click.stop="toggleSelector"
+          v-else>
+          <uni-icons
+            size="16"
+            color="#6A6A6A"
+            type="top"
+            class="arrowAnimation"
+            :class="showSelector ? 'top' : 'bottom'"></uni-icons>
+        </view>
+      </view>
+      <!-- 全屏遮罩-->
+      <view
+        class="e-select--mask"
+        v-if="showSelector"
+        @click.stop="toggleSelector" />
+      <!-- 选项列表 这里用v-show是因为微信小程序会报警告 [Component] slot "" is not found，v-if会导致开发工具不能正确识别到slot -->
+      <!-- https://developers.weixin.qq.com/community/minihome/doc/000c8295730700d1cd7c81b9656c00 -->
+      <view
+        class="e-select-selector"
+        :style="
+          position === 'top'
+            ? 'bottom: calc(0px + 42px)'
+            : 'top: calc(100% + 12px)'
+        "
+        v-show="showSelector">
+        <!-- 三角小箭头 -->
+        <view
+          :class="
+            position === 'top' ? 'e-popper-arrow-bottom' : 'e-popper-arrow'
+          "></view>
+        <scroll-view
+          scroll-y="true"
+          :scroll-top="scrollTop"
+          class="e-select-selector-scroll"
+          :style="{ maxHeight: maxHeight }"
+          :scroll-into-view="scrollToId"
+          :scroll-with-animation="scrollWithAnimation"
+          v-if="showSelector">
+          <view
+            class="e-select-selector-empty"
+            v-if="currentOptions.length === 0">
+            <text>{{ emptyTips }}</text>
+          </view>
+          <!-- 非空,渲染选项列表 -->
+          <view
+            v-else
+            class="e-select-selector-item"
+            :class="[
+              { highlight: currentData == item[props.text] },
+              {
+                'e-select-selector-item-disabled': item[props.disabled],
+              },
+            ]"
+            v-for="(item, index) in currentOptions"
+            :key="index"
+            @click="change(item, index)">
+            <view
+              id="scrollToId"
+              v-if="currentData == item[props.text]"></view>
+            <text>{{ item[props.text] }}</text>
+          </view>
+        </scroll-view>
+        <slot />
       </view>
     </view>
   </view>
@@ -105,12 +116,10 @@ export default {
       currentOptions: [],
       // 当前值
       currentData: '',
-      // 旧的滚动高度
-      oldScrollTop: 0,
-      // 最新的滚动高度
+      // 滚动高度
       scrollTop: 0,
       // 滚动至的id
-      scrollToId: '',
+      scrollToId: 'scrollToId',
       // 滚动动画
       scrollWithAnimation: false,
     };
@@ -123,10 +132,10 @@ export default {
         return [];
       },
     },
-    // 配置选项
+    // 选项列表自定义数据格式
     props: {
       type: Object,
-      default: function () {
+      default: () => {
         return {
           text: 'text',
           value: 'value',
@@ -144,27 +153,32 @@ export default {
       type: [String, Number],
       default: '',
     },
-    // 占位
+    // 占位文本
     placeholder: {
       type: String,
       default: '请选择',
     },
-    // 宽度
+    // 输入框宽度
     width: {
       type: String,
       default: '100%',
     },
-    // 最小宽度
+    // 输入框最小宽度
     minWidth: {
       type: String,
       default: '120rpx',
     },
-    // 空值占位
+    // 选项列表悬浮框最大高度
+    maxHeight: {
+      type: String,
+      default: '160px',
+    },
+    // 选项列表空值占位空值占位
     emptyTips: {
       type: String,
       default: '暂无选项',
     },
-    // 是否可清除
+    // 是否可清空
     clear: {
       type: Boolean,
       default: false,
@@ -174,15 +188,20 @@ export default {
       type: Boolean,
       default: false,
     },
-    // 开启搜索
+    // 是否开启搜索
     search: {
       type: Boolean,
       default: true,
     },
-    // 搜索开启滚动动画
+    // 是否开启搜索的滚动动画
     animation: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    // 悬浮框位置top/bottom
+    position: {
+      type: String,
+      default: 'bottom',
     },
   },
   watch: {
@@ -243,7 +262,7 @@ export default {
         this.currentOptions = this.options;
       }
       // scrollTop变化，才能触发滚动顶部
-      this.scrollTop = 1;
+      this.scrollTop = 0.1;
       this.$nextTick(() => {
         this.scrollTop = 0;
       });
@@ -276,19 +295,15 @@ export default {
       this.showSelector = !this.showSelector;
       if (this.showSelector) {
         this.currentOptions = this.options;
-        // scrollToId变化，才能触发scroll-to-view的滚动
-        this.scrollToId = '';
-        this.$nextTick(() => {
-          this.scrollToId = 'scrollToId';
-          // 设计理念：只在filter时触发滚动动画，因为每次打开就触发，用户体验不好
-          if (this.animation) {
-            setTimeout(() => {
-              // 开启滚动动画
-              this.scrollWithAnimation = true;
-            }, 100);
-          }
-        });
+        // 设计理念：只在filter时触发滚动动画，因为每次打开就触发，用户体验不好
+        if (this.animation) {
+          setTimeout(() => {
+            // 开启滚动动画
+            this.scrollWithAnimation = true;
+          }, 100);
+        }
       } else {
+        this.initData();
         // 关闭时关闭动画
         this.scrollWithAnimation = false;
       }
@@ -298,151 +313,189 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.e-stat__select {
+.e-select-box {
   display: flex;
   align-items: center;
-  cursor: pointer;
-  box-sizing: border-box;
   width: 100%;
-  padding: 15px;
+  box-sizing: border-box;
+  cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
-.e-select-main {
+
+.e-select {
   width: 100%;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  position: relative;
+  border: 1px solid #dcdfe6;
 }
+
 .e-select-disabled {
   background-color: #f5f7fa;
   cursor: not-allowed;
 }
-.e-select {
-  font-size: 14px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  padding: 0 5px;
+
+.e-select-input-box {
+  width: 100%;
+  padding: 0px 20rpx;
+  min-height: 34px;
   position: relative;
   display: flex;
-  user-select: none;
+  flex: 1;
   flex-direction: row;
   align-items: center;
-  border: 1px solid #dcdfe6;
-  border-bottom: solid 1px #dddddd;
-  .e-select__input-box {
+
+  .e-select-input-text {
+    color: #303030;
     width: 100%;
-    min-height: 34px;
-    position: relative;
+    color: #333;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 28rpx;
+  }
+
+  .e-select-input-placeholder {
+    font-size: 28rpx;
+    color: #999999;
+  }
+
+  .e-select-icon {
+    width: 50px;
+    padding-right: 3px;
+    height: 100%;
     display: flex;
-    flex: 1;
-    flex-direction: row;
+    justify-content: flex-end;
     align-items: center;
-    .e-select-icon {
-      width: 50px;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .arrowAnimation {
-      transition: transform 0.3s;
-    }
-    .top {
-      transform: rotateZ(0deg);
-    }
-    .bottom {
-      transform: rotateZ(180deg);
-    }
-    .e-select__input-text {
-      color: #303030;
-      padding-left: 7px;
-      width: 100%;
-      color: #333;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      -o-text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    .e-select__input-placeholder {
-      padding-left: 7px;
-      color: #666;
-    }
   }
-  .e-select--mask {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    z-index: 999;
+
+  .arrowAnimation {
+    transition: transform 0.3s;
   }
-  .e-select__selector {
+
+  .top {
+    transform: rotateZ(0deg);
+  }
+
+  .bottom {
+    transform: rotateZ(180deg);
+  }
+}
+
+.e-select--mask {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 999;
+}
+
+.e-select-selector {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  padding: 4px 2px;
+  transition: all 1s;
+
+  .e-select-selector-scroll {
     box-sizing: border-box;
-    position: absolute;
-    top: calc(100% + 12px);
-    left: 0;
-    width: 100%;
-    background-color: #ffffff;
-    border: 1px solid #ebeef5;
-    border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    z-index: 999;
-    padding: 4px 4px;
-    transition: all 2s;
-    .e-popper__arrow,
-    .e-popper__arrow::after {
-      position: absolute;
-      display: block;
-      width: 0;
-      height: 0;
-      left: 50%;
-      border-color: transparent;
-      border-style: solid;
-      border-width: 6px;
+
+    .e-select-selector-empty,
+    .e-select-selector-item {
+      display: flex;
+      cursor: pointer;
+      line-height: 35rpx;
+      font-size: 28rpx;
+      text-align: left;
+      padding: 15rpx 10px;
     }
-    .e-popper__arrow {
-      filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.03));
-      top: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-right: 3px;
-      border-top-width: 0;
-      border-bottom-color: #ebeef5;
+
+    .e-select-selector-item:hover {
+      background-color: #f9f9f9;
     }
-    .e-popper__arrow::after {
-      content: ' ';
-      top: 1px;
-      margin-left: -6px;
-      border-top-width: 0;
-      border-bottom-color: #fff;
+
+    .e-select-selector-empty:last-child,
+    .e-select-selector-item:last-child {
+      border-bottom: none;
     }
-    .e-select__selector-scroll {
-      max-height: 200px;
-      box-sizing: border-box;
-      .e-select__selector-empty,
-      .e-select__selector-item {
-        display: flex;
-        cursor: pointer;
-        line-height: 34px;
-        font-size: 14px;
-        text-align: center;
-        padding: 0px 10px;
-      }
-      .e-select__selector-item:hover {
-        background-color: #f9f9f9;
-      }
-      .e-select__selector-empty:last-child,
-      .e-select__selector-item:last-child {
-        border-bottom: none;
-      }
-      .e-select__selector-item-disabled {
-        color: #b1b1b1;
-        cursor: not-allowed;
-      }
-      .highlight {
-        color: #409eff;
-        font-weight: bold;
-        background-color: #f5f7fa;
-        border-radius: 3px;
-      }
+
+    .e-select-selector-item-disabled {
+      color: #b1b1b1;
+      cursor: not-allowed;
+    }
+
+    .highlight {
+      color: #409eff;
+      font-weight: bold;
+      background-color: #f5f7fa;
+      border-radius: 3px;
     }
   }
+}
+
+.e-popper-arrow,
+.e-popper-arrow::after,
+.e-popper-arrow-bottom,
+.e-popper-arrow-bottom::after {
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  left: 50%;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 6px;
+}
+
+.e-popper-arrow {
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.03));
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-right: 3px;
+  border-top-width: 0;
+  border-bottom-color: #ebeef5;
+}
+
+.e-popper-arrow::after {
+  content: ' ';
+  top: 1px;
+  margin-left: -6px;
+  border-top-width: 0;
+  border-bottom-color: #fff;
+}
+
+.e-popper-arrow-bottom {
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.03));
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-right: 3px;
+  border-bottom-width: 0;
+  border-top-color: #ebeef5;
+}
+
+.e-popper-arrow-bottom::after {
+  content: ' ';
+  bottom: 1px;
+  margin-left: -6px;
+  border-bottom-width: 0;
+  border-top-color: #fff;
+}
+
+/* 设置定位元素的位置 */
+#scrollToId {
+  margin-top: -15rpx;
 }
 </style>
