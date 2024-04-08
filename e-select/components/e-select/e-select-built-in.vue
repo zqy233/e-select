@@ -1,7 +1,13 @@
 <template>
-  <view class="e-select-box" :style="{ width: width, minWidth: minWidth }">
-    <view class="e-select" :class="{ 'e-select-disabled': disabled }">
-      <view class="e-select-input-box" @click="toggleSelector">
+  <view
+    class="e-select-box"
+    :style="{ width: width, minWidth: minWidth }">
+    <view
+      class="e-select"
+      :class="{ 'e-select-disabled': disabled }">
+      <view
+        class="e-select-input-box"
+        @click="toggleSelector">
         <!-- 微信小程序input组件在部分安卓机型上会出现文字重影，placeholder抖动问题，2019年时微信小程序就有这个问题，一直没修复，估计短时间内也别指望修复了 -->
         <input
           class="e-select-input-text"
@@ -23,10 +29,16 @@
           class="e-select-icon"
           @click.stop="clearVal"
           v-if="currentData && clearable && !disabled">
-          <uni-icons type="clear" color="#e1e1e1" size="16"></uni-icons>
+          <uni-icons
+            type="clear"
+            color="#e1e1e1"
+            size="16"></uni-icons>
         </view>
         <!-- 箭头图标，同上 -->
-        <view class="e-select-icon" @click.stop="toggleSelector" v-else>
+        <view
+          class="e-select-icon"
+          @click.stop="toggleSelector"
+          v-else>
           <uni-icons
             size="16"
             color="#6A6A6A"
@@ -81,7 +93,9 @@
             v-for="(item, index) in currentOptions"
             :key="index"
             @click="change(item, index)">
-            <view id="scrollToId" v-if="currentData == item[props.text]"></view>
+            <view
+              id="scrollToId"
+              v-if="currentData == item[props.text]"></view>
             <text>{{ item[props.text] }}</text>
           </view>
         </scroll-view>
@@ -93,7 +107,7 @@
 
 <script>
 export default {
-  name: "e-select",
+  name: 'e-select',
   data() {
     return {
       // 是否显示下拉选择列表
@@ -103,11 +117,11 @@ export default {
       // 过滤后的选项列表
       filterOptions: [],
       // 当前值
-      currentData: "",
+      currentData: '',
       // 滚动高度
       scrollTop: 0,
       // 滚动至的id
-      scrollToId: "scrollToId",
+      scrollToId: 'scrollToId',
       // 滚动动画
       scrollWithAnimation: false,
     };
@@ -116,12 +130,12 @@ export default {
     // vue2 v-model传值方式
     value: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // vue3 v-model传值方式
     modelValue: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // 选项列表
     options: {
@@ -135,36 +149,36 @@ export default {
       type: Object,
       default: () => {
         return {
-          text: "text",
-          value: "value",
-          disabled: "disabled",
+          text: 'text',
+          value: 'value',
+          disabled: 'disabled',
         };
       },
     },
     // 占位文本
     placeholder: {
       type: String,
-      default: "请选择",
+      default: '请选择',
     },
     // 输入框宽度
     width: {
       type: String,
-      default: "100%",
+      default: '100%',
     },
     // 输入框最小宽度
     minWidth: {
       type: String,
-      default: "120rpx",
+      default: '120rpx',
     },
     // 选项列表悬浮框最大高度
     maxHeight: {
       type: String,
-      default: "160px",
+      default: '160px',
     },
     // 选项列表空值占位空值占位
     emptyTips: {
       type: String,
-      default: "暂无选项",
+      default: '暂无选项',
     },
     // 是否可清空
     clearable: {
@@ -189,7 +203,7 @@ export default {
     // 悬浮框位置top/bottom
     position: {
       type: String,
-      default: "bottom",
+      default: 'bottom',
     },
     // 分页每页条数
     pageSize: {
@@ -224,6 +238,9 @@ export default {
       },
       immediate: true,
     },
+    pageSize() {
+      this.initOptions();
+    },
     pageIndex() {
       this.initOptions();
     },
@@ -231,17 +248,17 @@ export default {
   methods: {
     /** 处理数据，此函数用于兼容vue2 vue3 */
     initData() {
-      this.currentData = "";
+      this.currentData = '';
       // vue2
       if (this.value || this.value === 0) {
         for (let i = 0; i < this.options.length; i++) {
           const item = this.options[i];
           if (item[this.props.value] === this.value) {
             this.currentData = item[this.props.text];
-            this.$emit("getText", this.currentData);
+            this.$emit('getText', this.currentData);
             // 如果分页，初始化分页当前页数
             if (this.pageSize && this.pageIndex) {
-              this.$emit("update:pageIndex", Math.floor(i / this.pageSize) + 1);
+              this.$emit('update:pageIndex', Math.floor(i / this.pageSize) + 1);
             }
             return;
           }
@@ -253,9 +270,9 @@ export default {
           const item = this.options[i];
           if (item[this.props.value] === this.modelValue) {
             this.currentData = item[this.props.text];
-            this.$emit("getText", this.currentData);
+            this.$emit('getText', this.currentData);
             if (this.pageSize && this.pageIndex) {
-              this.$emit("update:pageIndex", Math.floor(i / this.pageSize) + 1);
+              this.$emit('update:pageIndex', Math.floor(i / this.pageSize) + 1);
             }
             return;
           }
@@ -282,13 +299,13 @@ export default {
     /** 过滤选项列表，会自动回到顶部 */
     filter() {
       // 回到分页第一页
-      this.$emit("update:pageIndex", 1);
-      this.$emit("getText", this.currentData);
+      this.$emit('update:pageIndex', 1);
+      this.$emit('getText', this.currentData);
       if (this.currentData) {
         this.filterOptions = this.options.filter((item) => {
           return item[this.props.text].indexOf(this.currentData) > -1;
         });
-        this.$emit("update:total", this.filterOptions.length);
+        this.$emit('update:total', this.filterOptions.length);
       }
       // 等待update:pageIndex事件执行完成
       setTimeout(() => {
@@ -302,20 +319,20 @@ export default {
         index,
         ...item,
       };
-      this.$emit("change", data);
+      this.$emit('change', data);
       this.emit(data);
       this.toggleSelector();
     },
     /** 传递父组件值 */
     emit(item) {
-      this.$emit("input", item[this.props.value]);
-      this.$emit("update:modelValue", item[this.props.value]);
+      this.$emit('input', item[this.props.value]);
+      this.$emit('update:modelValue', item[this.props.value]);
     },
     /** 清空值 */
     clearVal() {
-      this.$emit("change", "clear");
-      this.$emit("input", "");
-      this.$emit("update:modelValue", "");
+      this.$emit('change', 'clear');
+      this.$emit('input', '');
+      this.$emit('update:modelValue', '');
     },
     /** 切换下拉显示 */
     toggleSelector() {
@@ -334,7 +351,7 @@ export default {
         this.filterOptions = this.options.slice();
         this.initData();
         this.initOptions();
-        this.$emit("update:total", this.options.length);
+        this.$emit('update:total', this.options.length);
         this.scrollWithAnimation = false;
       }
     },
@@ -499,7 +516,7 @@ export default {
 }
 
 .e-popper-arrow::after {
-  content: " ";
+  content: ' ';
   top: 1px;
   margin-left: -6px;
   border-top-width: 0;
@@ -517,7 +534,7 @@ export default {
 }
 
 .e-popper-arrow-bottom::after {
-  content: " ";
+  content: ' ';
   bottom: 1px;
   margin-left: -6px;
   border-bottom-width: 0;

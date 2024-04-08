@@ -19,7 +19,7 @@
     @update:total="updateTotal"
     @change="changeSelect">
     <uni-pagination-built-in
-      v-if="pageSize && pageIndex && total"
+      v-if="pageSize"
       show-icon="true"
       :total="total"
       :pageSize="pageSize"
@@ -29,8 +29,8 @@
 </template>
 
 <script>
-import eSelectBuiltIn from "./e-select-built-in.vue";
-import uniPaginationBuiltIn from "./uni-pagination-built-in/uni-pagination-built-in.vue";
+import eSelectBuiltIn from './e-select-built-in.vue';
+import uniPaginationBuiltIn from './uni-pagination-built-in/uni-pagination-built-in.vue';
 export default {
   components: {
     eSelectBuiltIn,
@@ -40,12 +40,12 @@ export default {
     // vue2 v-model传值方式
     value: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // vue3 v-model传值方式
     modelValue: {
       type: [String, Number],
-      default: "",
+      default: '',
     },
     // 选项列表
     options: {
@@ -59,36 +59,36 @@ export default {
       type: Object,
       default: () => {
         return {
-          text: "text",
-          value: "value",
-          disabled: "disabled",
+          text: 'text',
+          value: 'value',
+          disabled: 'disabled',
         };
       },
     },
     // 占位文本
     placeholder: {
       type: String,
-      default: "请选择",
+      default: '请选择',
     },
     // 输入框宽度
     width: {
       type: String,
-      default: "100%",
+      default: '100%',
     },
     // 输入框最小宽度
     minWidth: {
       type: String,
-      default: "120rpx",
+      default: '120rpx',
     },
     // 选项列表悬浮框最大高度
     maxHeight: {
       type: String,
-      default: "160px",
+      default: '160px',
     },
     // 选项列表空值占位空值占位
     emptyTips: {
       type: String,
-      default: "暂无选项",
+      default: '暂无选项',
     },
     // 是否可清空
     clearable: {
@@ -113,25 +113,31 @@ export default {
     // 悬浮框位置top/bottom
     position: {
       type: String,
-      default: "bottom",
+      default: 'bottom',
     },
     // 分页每页条数
     pageSize: {
       type: Number,
       default: 0,
     },
-    // 分页当前页数
-    pageIndex: {
-      type: Number,
-      default: 1,
-    },
-    // 下拉列表总数
-    total: {
-      type: Number,
-      default: 0,
-    },
+  },
+  data() {
+    return {
+      // 前端分页，总数就是下拉列表总数，不应由用户来控制，放在组件内部
+      total: 0,
+      // 前端分页，当前分页不应由用户来控制，放在组件内部
+      pageIndex: 1,
+      selectData: '',
+    };
   },
   watch: {
+    options: {
+      handler(val) {
+        this.total = val.length;
+      },
+      immediate: true,
+      deep: true,
+    },
     modelValue: {
       handler() {
         this.initData();
@@ -146,15 +152,10 @@ export default {
     },
     selectData: {
       handler(val) {
-        this.$emit("input", val);
-        this.$emit("update:modelValue", val);
+        this.$emit('input', val);
+        this.$emit('update:modelValue', val);
       },
     },
-  },
-  data() {
-    return {
-      selectData: "",
-    };
   },
   methods: {
     /** 处理数据，此函数用于兼容vue2 vue3 */
@@ -169,17 +170,17 @@ export default {
       }
     },
     updatePageIndex(pageIndex) {
-      this.$emit("update:pageIndex", pageIndex);
+      this.pageIndex = pageIndex;
     },
     updateTotal(total) {
-      this.$emit("update:total", total);
+      this.total = total;
     },
     changePage(data) {
-      this.$emit("update:pageIndex", data.current);
-      this.$emit("changePage", data);
+      this.pageIndex = data.current;
+      this.$emit('changePage', data);
     },
     changeSelect(data) {
-      this.$emit("change", data);
+      this.$emit('change', data);
     },
   },
 };
