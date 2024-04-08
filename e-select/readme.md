@@ -196,16 +196,15 @@
         <e-select
           position="top"
           v-model="value2"
-          :options="options2"
-          :props="props2"
-          @change="change2">
+          :options="options3"
+          @change="change3">
           <!-- 内置插槽，可以搭配官方uni-ui的分页组件使用 -->
           <uni-pagination
             show-icon="true"
             :total="1000"
             :pageSize="100"
-            :current="2"
-            @change="page1"></uni-pagination>
+            :current="current"
+            @change="page"></uni-pagination>
         </e-select>
       </view>
     </view>
@@ -232,6 +231,9 @@
         },
         options1: [],
         options2: [],
+        AllOptions: [],
+        options3: [],
+        current: 1,
       };
     },
     methods: {
@@ -244,8 +246,16 @@
       change2(item) {
         console.log(item);
       },
-      page1(item) {
+      change3(item) {
         console.log(item);
+      },
+      page(item) {
+        console.log(item);
+        this.current = item.current;
+        this.options3 = this.AllOptions.slice(
+          (this.current - 1) * 100,
+          this.current * 100
+        );
       },
     },
     mounted() {
@@ -272,6 +282,13 @@
           });
         }
       }
+      for (let i = 0; i < 1000; i++) {
+        this.AllOptions.push({
+          text: '分页数据' + i,
+          value: i,
+        });
+      }
+      this.options3 = this.AllOptions.slice(0, this.current * 100);
     },
   };
 </script>
