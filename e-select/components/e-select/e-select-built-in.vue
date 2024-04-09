@@ -120,6 +120,7 @@ export default {
       // 当前值
       currentData: '',
       // 滚动高度
+      scrollTopOld: 0,
       scrollTop: 0,
       // 滚动至的id
       scrollToId: 'scrollToId',
@@ -281,7 +282,7 @@ export default {
       }
     },
     scroll(e) {
-      this.scrollTop = e.detail.scrollTop;
+      this.scrollTopOld = e.detail.scrollTop;
     },
     /** 初始化选项列表 */
     initOptions() {
@@ -294,6 +295,7 @@ export default {
       } else {
         this.currentOptions = this.filterOptions;
       }
+      this.scrollTop = this.scrollTopOld;
       // 回到顶部
       this.$nextTick(() => {
         this.scrollTop = 0;
@@ -460,6 +462,7 @@ export default {
 
   .e-select-selector-scroll {
     box-sizing: border-box;
+    overflow: auto;
 
     .e-select-selector-empty,
     .e-select-selector-item {
