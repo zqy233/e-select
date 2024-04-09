@@ -69,6 +69,7 @@
           "></view>
         <scroll-view
           scroll-y="true"
+          @scroll="scroll"
           :scroll-top="scrollTop"
           class="e-select-selector-scroll"
           :style="{ maxHeight: maxHeight }"
@@ -279,6 +280,9 @@ export default {
         }
       }
     },
+    scroll(e) {
+      this.scrollTop = e.detail.scrollTop;
+    },
     /** 初始化选项列表 */
     initOptions() {
       // 设置分页情况下列表
@@ -290,8 +294,7 @@ export default {
       } else {
         this.currentOptions = this.filterOptions;
       }
-      // scrollTop变化，才能触发滚动顶部，再低如0.01则不能触发，真神奇
-      this.scrollTop = 0.1;
+      // 回到顶部
       this.$nextTick(() => {
         this.scrollTop = 0;
       });
